@@ -28,13 +28,18 @@ crop_img = []
 for p in position:
     x, y, w, h = p
     if w > h :
-        crop = img[int(y+h/2-w/2):int(y+h/2+w/2), x:x+w]
+        if y+h/2-w/2 > 0 :
+            crop = img[int(y+h/2-w/2):int(y+h/2+w/2), x:x+w]
+        else:
+            crop = img[0:0+w, x:x+w]
     elif h > w :
-        crop = img[y:y+h, int(x+w/2-h/2):int(x+w/2+h/2)]
+        if x+w/2-h/2 > 0 :
+            crop = img[y:y+h, int(x+w/2-h/2):int(x+w/2+h/2)]
+        else :
+            crop = img[y:y+h, 0:0+h]
     crop_img.append(crop)
 n = 1
 for cro in crop_img:
-    print(cro.shape)
     cv2.imshow('crop'+str(n), cro)
     n += 1
 
