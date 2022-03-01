@@ -36,7 +36,7 @@ for p in position:
         if x+w/2-h/2 > 0 :
             crop = img[y:y+h, int(x+w/2-h/2):int(x+w/2+h/2)]
         else :
-            crop = img[y:y+h, 0:0+h]
+            crop = img[y:y+h, 0:2*x+w]
     crop_img.append(crop)
 n = 1
 for cro in crop_img:
