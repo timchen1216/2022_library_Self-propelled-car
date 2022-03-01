@@ -31,7 +31,7 @@ for p in position:
         if y+h/2-w/2 > 0 :
             crop = img[int(y+h/2-w/2):int(y+h/2+w/2), x:x+w]
         else:
-            crop = img[0:0+w, x:x+w]
+            crop = img[0:2*x+h, x:x+w]
     elif h > w :
         if x+w/2-h/2 > 0 :
             crop = img[y:y+h, int(x+w/2-h/2):int(x+w/2+h/2)]
