@@ -2,7 +2,6 @@
 #-*- coding: utf-8 -*-
 import cv2
 import numpy as np
-from PIL import ImageGrab
 import time
 frameWidth = 640
 frameHeight = 480
@@ -31,7 +30,6 @@ def preProcessing(img):
 #框出標籤的矩形: 利用findContours找出封閉區域且有四個邊的部分將其框起來
 def getContours(img):
         biggest = np.zeros([20,1,2])
-        maxArea = 0
         amount = 0 #用來計算畫面內一次有幾個矩形
         contours,hierarchy = cv2.findContours(img,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_NONE)
         for cnt in contours:
@@ -41,11 +39,10 @@ def getContours(img):
                 peri = cv2.arcLength(cnt,True)
                 approx = cv2.approxPolyDP(cnt,0.02*peri,True)
                 #print ("approx",len(cnt))
-                if area >maxArea and len(approx) == 4:
+                if len(approx) == 4:
                     amount = amount + 1
                     approx = reorder(approx,amount)
                     biggest[4*amount - 4:4*amount] = approx
-                    maxArea = area
                     cv2.drawContours(imgContour, cnt, -1, (255, 0, 0), 3)
         return biggest,amount
 
@@ -88,9 +85,10 @@ def getWarp(img,biggest,amount):
 
 #判斷出何時將標籤拍照存入資料夾中    
 def  getpicture(img,biggest,count,take) :
+         name = ['023','714']
          if biggest[0][0][0] > 200  and biggest[0][0][0] < 400  and take == 0:
              count = count + 1 #計算存入照片的數量
-             cv2.imwrite("Cropped\\" +  str(count) +  ".png",img)
+             cv2.imwrite(name[0] + "\\" +  str(count) +  ".png",img)
              take = 1 #take = 0(拍) take = 1(不拍)
          elif biggest[0][0][0] > 200  and biggest[0][0][0] < 400  and take == 1:
              pass
@@ -139,22 +137,13 @@ while True:
         biggest,amount = getContours(imgThres) 
         #cv2.line(imgContour, (200,0), (200,480), (255,0,0), 2)
         #cv2.line(imgContour, (400,0), (400,480), (255,0,0), 2)
-        #imgStac= stackImages(0.6,[imgThres,imgContour])
-        #cv2.imshow("SSS", imgStac)
+        cv2.imshow("SSS", imgContour)
         
-        if amount == 1:
+        if amount >= 1:
           imgWarped=getWarp(img,biggest,amount)
-          imgshow1 = np.array(imgWarped[0], dtype=np.uint8)
-          cv2.imshow("Warp1", imgshow1)
-        elif amount == 2:  
-          imgWarped=getWarp(img,biggest,amount)   
-          imgshow1 = np.array(imgWarped[0], dtype=np.uint8)
-          imgshow2 = np.array(imgWarped[1], dtype=np.uint8)
-          cv2.imshow("Warp1", imgshow1)
-          cv2.imshow("Warp2", imgshow2)
-          
-          
-         # count,take = getpicture(imgWarped,biggest,count,take)
+          for i in range(1,amount+1):
+              cv2.imshow("Warp"+str(i), imgWarped[i-1])
+              count,take = getpicture(imgWarped[i-1],biggest,count,take)
         
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
