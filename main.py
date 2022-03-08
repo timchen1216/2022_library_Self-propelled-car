@@ -1,5 +1,3 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
 import cv2
 from cv2 import Canny
 import numpy as np

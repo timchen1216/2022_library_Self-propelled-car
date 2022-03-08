@@ -30,7 +30,8 @@ model加上data augmentation
 3/8
 開會
 遇到困難:
-    1.code無法組合
+    1.code無法組合:
+        結構不一樣
     2.截出來照片太糊(相機無法對焦)
 嘗試使用flask建立網頁
 陳威宇在搞
