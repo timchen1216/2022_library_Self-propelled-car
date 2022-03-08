@@ -33,6 +33,7 @@ model加上data augmentation
     1.code無法組合
     2.截出來照片太糊(相機無法對焦)
 嘗試使用flask建立網頁
+陳威宇在搞
 
 
 3/30報名截止
