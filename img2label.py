@@ -28,7 +28,7 @@ class img2lable:
         return imgThres
 
     #框出標籤的矩形: 利用findContours找出封閉區域且有四個邊的部分將其框起來
-    def getContours(self,img):
+    def getContours(self, img):
         contours, hierarchy = cv2.findContours(
             img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         for cnt in contours:
@@ -42,7 +42,7 @@ class img2lable:
                     self.amount = self.amount + 1
                     approx = img2lable.reorder(approx, self.amount)
                     self.biggest[4*self.amount - 4:4*self.amount] = approx
-                    cv2.drawContours(self.imgContour , cnt, -1, (255, 0, 0), 3)
+                    cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 3)
         return self.biggest, self.amount
 
     # 重新整理getContours算出的矩形四個點的矩陣，依序整理成左上>右上>左下>右下
@@ -58,7 +58,7 @@ class img2lable:
         return myPointsNew
 
     # 將框出的矩形擷取出來，並且能將直向的標籤反轉成橫向
-    def getWarp(self,img):
+    def getWarp(self, img):
         imgOutput = list()
         for i in range(1, self.amount+1):
             width = (self.biggest[4*i-1][0][0] - self.biggest[4*i-4][0][0])*2
@@ -86,7 +86,7 @@ class img2lable:
         return imgOutput
 
     # 判斷出何時將標籤拍照存入資料夾中
-    def getpicture(self,img):
+    def getpicture(self, img):
         name = ['023', '714']
         if self.biggest[0][0][0] > 200 and self.biggest[0][0][0] < 400 and self.take == 0:
             self.count = self.count + 1  # 計算存入照片的數量
@@ -101,7 +101,7 @@ class img2lable:
         return self.count, self.take
 
     # 將各式img合成同一個視窗輸出，讓img能同框比較
-    def stackImages(self,scale):
+    def stackImages(self, scale):
         rows = len(self.imgArray)
         cols = len(self.imgArray[0])
         rowsAvailable = isinstance(self.imgArray[0], list)
@@ -134,7 +134,36 @@ class img2lable:
                     self.imgArray[x] = cv2.resize(
                         self.imgArray[x], (self.imgArray[0].shape[1], self.imgArray[0].shape[0]), None, scale, scale)
                 if len(self.imgArray[x].shape) == 2:
-                    self.imgArray[x] = cv2.cvtColor(self.imgArray[x], cv2.COLOR_GRAY2BGR)
+                    self.imgArray[x] = cv2.cvtColor(
+                        self.imgArray[x], cv2.COLOR_GRAY2BGR)
             hor = np.hstack(self.imgArray)
             self.imgStack = hor
         return self.imgStack
+
+
+frameWidth = 640
+frameHeight = 480
+cap = cv2.VideoCapture(0)
+cap.set(3, frameWidth)
+cap.set(4, frameHeight)
+
+label = img2lable()
+
+while True:
+    success, img = cap.read()
+    imgContour = img.copy()
+    imgThres = label.preProcessing(img)
+    biggest, amount = label.getContours(imgThres)
+    #cv2.line(imgContour, (200,0), (200,480), (255,0,0), 2)
+    #cv2.line(imgContour, (400,0), (400,480), (255,0,0), 2)
+    cv2.imshow("SSS", imgContour)
+
+    if amount >= 1:
+        imgWarped = label.getWarp(img, biggest, amount)
+        for i in range(1, amount+1):
+            cv2.imshow("Warp"+str(i), imgWarped[i-1])
+            count, take = label.getpicture(
+                imgWarped[i-1], biggest, count, take)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
