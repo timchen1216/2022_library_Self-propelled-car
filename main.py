@@ -10,7 +10,7 @@ cap.set(3, frameWidth)
 cap.set(4, frameHeight)
 
 
-
+prediction = []
 
 while True:
     success, img = cap.read()
@@ -27,6 +27,10 @@ while True:
             number = label2number(imgWarped[i-1])
             predict = number.prediction()
             print('predict :',predict)
+            prediction.append(predict)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+cap.release()
+cv2.destroyAllWindows()  
