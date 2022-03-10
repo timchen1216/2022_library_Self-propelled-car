@@ -96,7 +96,7 @@ class img2lable:
         else:
             pass
         return self.count, self.take
-pass    
+    
 
 
 # frameWidth = 640
