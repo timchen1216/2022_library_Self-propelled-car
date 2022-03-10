@@ -22,9 +22,6 @@ class img2lable:
         kernel = np.ones((5, 5))
         imgDial = cv2.dilate(imgCanny, kernel, iterations=2)
         imgThres = cv2.erode(imgDial, kernel, iterations=1)
-        self.imgStack = img2lable.stackImages(
-            0.8, ([img, imgGray, imgBlur], [imgCanny, imgDial, imgThres]))
-        cv2.imshow("Stack", self.imgStack)
         return imgThres
 
     #框出標籤的矩形: 利用findContours找出封閉區域且有四個邊的部分將其框起來
@@ -99,71 +96,33 @@ class img2lable:
         else:
             pass
         return self.count, self.take
-
-    # 將各式img合成同一個視窗輸出，讓img能同框比較
-    def stackImages(self, scale):
-        rows = len(self.imgArray)
-        cols = len(self.imgArray[0])
-        rowsAvailable = isinstance(self.imgArray[0], list)
-        width = self.imgArray[0][0].shape[1]
-        height = self.imgArray[0][0].shape[0]
-        if rowsAvailable:
-            for x in range(0, rows):
-                for y in range(0, cols):
-                    if self.imgArray[x][y].shape[:2] == self.imgArray[0][0].shape[:2]:
-                        self.imgArray[x][y] = cv2.resize(
-                            self.imgArray[x][y], (0, 0), None, scale, scale)
-                    else:
-                        self.imgArray[x][y] = cv2.resize(
-                            self.imgArray[x][y], (self.imgArray[0][0].shape[1], self.imgArray[0][0].shape[0]), None, scale, scale)
-                    if len(self.imgArray[x][y].shape) == 2:
-                        self.imgArray[x][y] = cv2.cvtColor(
-                            self.imgArray[x][y], cv2.COLOR_GRAY2BGR)
-            imageBlank = np.zeros((height, width, 3), np.uint8)
-            hor = [imageBlank]*rows
-            hor_con = [imageBlank]*rows
-            for x in range(0, rows):
-                hor[x] = np.hstack(self.imgArray[x])
-            self.imgStack = np.vstack(hor)
-        else:
-            for x in range(0, rows):
-                if self.imgArray[x].shape[:2] == self.imgArray[0].shape[:2]:
-                    self.imgArray[x] = cv2.resize(
-                        self.imgArray[x], (0, 0), None, scale, scale)
-                else:
-                    self.imgArray[x] = cv2.resize(
-                        self.imgArray[x], (self.imgArray[0].shape[1], self.imgArray[0].shape[0]), None, scale, scale)
-                if len(self.imgArray[x].shape) == 2:
-                    self.imgArray[x] = cv2.cvtColor(
-                        self.imgArray[x], cv2.COLOR_GRAY2BGR)
-            hor = np.hstack(self.imgArray)
-            self.imgStack = hor
-        return self.imgStack
+pass    
 
 
-frameWidth = 640
-frameHeight = 480
-cap = cv2.VideoCapture(0)
-cap.set(3, frameWidth)
-cap.set(4, frameHeight)
+# frameWidth = 640
+# frameHeight = 480
+# cap = cv2.VideoCapture(0)
+# cap.set(3, frameWidth)
+# cap.set(4, frameHeight)
 
-label = img2lable()
 
-while True:
-    success, img = cap.read()
-    imgContour = img.copy()
-    imgThres = label.preProcessing(img)
-    biggest, amount = label.getContours(imgThres)
-    #cv2.line(imgContour, (200,0), (200,480), (255,0,0), 2)
-    #cv2.line(imgContour, (400,0), (400,480), (255,0,0), 2)
-    cv2.imshow("SSS", imgContour)
 
-    if amount >= 1:
-        imgWarped = label.getWarp(img, biggest, amount)
-        for i in range(1, amount+1):
-            cv2.imshow("Warp"+str(i), imgWarped[i-1])
-            count, take = label.getpicture(
-                imgWarped[i-1], biggest, count, take)
+# while True:
+#     success, img = cap.read()
+#     label = img2lable(img)
+#     imgContour = img.copy()
+#     imgThres = label.preProcessing(img)
+#     biggest, amount = label.getContours(imgThres)
+#     #cv2.line(imgContour, (200,0), (200,480), (255,0,0), 2)
+#     #cv2.line(imgContour, (400,0), (400,480), (255,0,0), 2)
+#     cv2.imshow("SSS", imgContour)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+#     if amount >= 1:
+#         imgWarped = label.getWarp(img, biggest, amount)
+#         for i in range(1, amount+1):
+#             cv2.imshow("Warp"+str(i), imgWarped[i-1])
+#             count, take = label.getpicture(
+#                 imgWarped[i-1], biggest, count, take)
+
+#     if cv2.waitKey(1) & 0xFF == ord('q'):
+#         break

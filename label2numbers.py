@@ -96,27 +96,27 @@ class label2number:
 
 
 
-img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
-cv2.imshow('img', img)
-main = label2number(img)
-imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
-imgContour = main.findContour(imgThres)
-crop = main.crop(img)
-predict = main.prediction()
+# img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
+# cv2.imshow('img', img)
+# main = label2number(img)
+# imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
+# imgContour = main.findContour(imgThres)
+# crop = main.crop(img)
+# predict = main.prediction()
 
-cv2.imshow("Gray",imgGray)
-cv2.imshow("Blur",imgBlur)  
-cv2.imshow("Canny",imgCanny) 
-cv2.imshow('dilate', imgDial)
-cv2.imshow('erode', imgThres)
-cv2.imshow('imgContour', imgContour)
+# cv2.imshow("Gray",imgGray)
+# cv2.imshow("Blur",imgBlur)  
+# cv2.imshow("Canny",imgCanny) 
+# cv2.imshow('dilate', imgDial)
+# cv2.imshow('erode', imgThres)
+# cv2.imshow('imgContour', imgContour)
 
-# for i,cro in enumerate(crop):
-#     cv2.imshow('inference'+str(i), cro)
+# # for i,cro in enumerate(crop):
+# #     cv2.imshow('inference'+str(i), cro)
 
-print(predict)
+# print(predict)
 
-cv2.waitKey(0)
+# cv2.waitKey(0)
 
 
 
