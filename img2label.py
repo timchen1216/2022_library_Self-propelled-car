@@ -33,18 +33,18 @@ class img2lable:
             if area > 5000:
                 #cv2.drawContours(imgContour, cnt, -1, (255, 0, 0), 3)
                 peri = cv2.arcLength(cnt, True)
-                approx = cv2.approxPolyDP(cnt, 0.02*peri, True)
+                self.approx = cv2.approxPolyDP(cnt, 0.02*peri, True)
                 #print ("approx",len(cnt))
-                if len(approx) == 4:
+                if len(self.approx) == 4:
                     self.amount = self.amount + 1
-                    approx = img2lable.reorder(approx, self.amount)
-                    self.biggest[4*self.amount - 4:4*self.amount] = approx
+                    self.approx = img2lable.reorder(self)
+                    self.biggest[4*self.amount - 4:4*self.amount] = self.approx
                     cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 3)
         return self.biggest, self.amount
 
     # 重新整理getContours算出的矩形四個點的矩陣，依序整理成左上>右上>左下>右下
     def reorder(self):
-        myPoints = self.amount.reshape((4, 2))
+        myPoints = self.approx.reshape((4, 2))
         myPointsNew = np.zeros((4, 1, 2), np.int32)
         add = myPoints.sum(1)
         myPointsNew[0] = myPoints[np.argmin(add)]
@@ -56,29 +56,30 @@ class img2lable:
 
     # 將框出的矩形擷取出來，並且能將直向的標籤反轉成橫向
     def getWarp(self, img):
-        imgOutput = list()
-        for i in range(1, self.amount+1):
-            width = (self.biggest[4*i-1][0][0] - self.biggest[4*i-4][0][0])*2
-            height = (self.biggest[4*i-1][0][1] - self.biggest[4*i-4][0][1])*2
-            widthImg = width.astype('int32')
-            heightImg = height.astype('int32')
-            pts1 = np.float32(self.biggest[4*i-4:4*i])
-            if widthImg < heightImg:
-                #pts2 = np.float32([[widthImg, 0], [widthImg, heightImg], [0, 0], [0, heightImg]])
-                pts2 = np.float32(
-                    [[0, heightImg], [0, 0], [widthImg, heightImg], [widthImg, 0]])
-            else:
-                pts2 = np.float32(
-                    [[0, 0], [widthImg, 0], [0, heightImg], [widthImg, heightImg]])
-            matrix = cv2.getPerspectiveTransform(pts1, pts2)
-            imgOutput.append(cv2.warpPerspective(
-                img, matrix, (widthImg, heightImg)))
-            if widthImg < heightImg:
-                imgOutput[i-1] = cv2.resize(imgOutput[i-1],
-                                            (heightImg, widthImg))
-            else:
-                imgOutput[i-1] = cv2.resize(imgOutput[i-1],
-                                            (widthImg, heightImg))
+        if self.amount >= 1:
+            imgOutput = list()
+            for i in range(1, self.amount+1):
+                width = (self.biggest[4*i-1][0][0] - self.biggest[4*i-4][0][0])*2
+                height = (self.biggest[4*i-1][0][1] - self.biggest[4*i-4][0][1])*2            
+                widthImg = width.astype('int32')
+                heightImg = height.astype('int32')
+                pts1 = np.float32(self.biggest[4*i-4:4*i])
+                if widthImg < heightImg:
+                    #pts2 = np.float32([[widthImg, 0], [widthImg, heightImg], [0, 0], [0, heightImg]])
+                    pts2 = np.float32(
+                        [[0, heightImg], [0, 0], [widthImg, heightImg], [widthImg, 0]])
+                else:
+                    pts2 = np.float32(
+                        [[0, 0], [widthImg, 0], [0, heightImg], [widthImg, heightImg]])
+                matrix = cv2.getPerspectiveTransform(pts1, pts2)
+                imgOutput.append(cv2.warpPerspective(
+                    img, matrix, (widthImg, heightImg)))            
+                if 0 < widthImg < heightImg :
+                    imgOutput[i-1] = cv2.resize(imgOutput[i-1],
+                                                (heightImg, widthImg))
+                elif 0 < heightImg < widthImg:
+                    imgOutput[i-1] = cv2.resize(imgOutput[i-1],
+                                                (widthImg, heightImg))
 
         return imgOutput
 
@@ -96,7 +97,6 @@ class img2lable:
         else:
             pass
         return self.count, self.take
-    
 
 
 # frameWidth = 640
@@ -104,7 +104,6 @@ class img2lable:
 # cap = cv2.VideoCapture(0)
 # cap.set(3, frameWidth)
 # cap.set(4, frameHeight)
-
 
 
 # while True:
@@ -118,11 +117,10 @@ class img2lable:
 #     cv2.imshow("SSS", imgContour)
 
 #     if amount >= 1:
-#         imgWarped = label.getWarp(img, biggest, amount)
+#         imgWarped = label.getWarp(img)
 #         for i in range(1, amount+1):
 #             cv2.imshow("Warp"+str(i), imgWarped[i-1])
-#             count, take = label.getpicture(
-#                 imgWarped[i-1], biggest, count, take)
+#             count, take = label.getpicture(imgWarped[i-1])
 
 #     if cv2.waitKey(1) & 0xFF == ord('q'):
 #         break

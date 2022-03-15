@@ -12,8 +12,8 @@ class label2number:
         self.predict = []
 
         # loadModel        
-        self.model = load_model('my_model.h5')
-        self.model.load_weights('my_model_weights.h5')
+        self.model = load_model(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model.h5')
+        self.model.load_weights(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model_weights.h5')
 
     def preProcessing(self,img):
         imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)        
@@ -25,21 +25,24 @@ class label2number:
         
         return imgGray,imgBlur,imgCanny,imgDial,imgThres
     
-    def findContour(self,imgThres):
+    def findContour(self,imgCanny):
         contours, hierarchy = cv2.findContours(
-            imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            imgCanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
         
+        width,height = imgCanny.shape
+
         for cnt in contours:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
             arcLengthh = cv2.arcLength(cnt, True)
-            if arcLengthh > 100 and arcLengthh < 800:
+            area = cv2.contourArea(cnt)
+            if 50 < arcLengthh < 900 and area > 500:
                 peri = cv2.arcLength(cnt, False)
                 vertices = cv2.approxPolyDP(cnt, peri*0.02, False)
                 x, y, w, h = cv2.boundingRect(vertices)
-                pos = [x, y, w, h]
-                self.position.append(pos)
-                cv2.rectangle(self.imgContour, (x, y), (x+w, y+h), (0, 255, 0), 4)
-        cv2.imshow('imgContour', self.imgContour)
+                if 0.05*width < x < width and 0.02*height < y < 0.9*height:
+                    pos = [x, y, w, h]
+                    self.position.append(pos)
+                    cv2.rectangle(self.imgContour, (x, y), (x+w, y+h), (0, 255, 0), 4)
 
         self.position.sort()
         return self.imgContour

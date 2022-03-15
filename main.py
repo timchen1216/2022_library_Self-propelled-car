@@ -1,3 +1,4 @@
+from matplotlib.pyplot import contour
 import numpy as np
 import cv2
 from Img2label import img2lable
@@ -21,10 +22,16 @@ while True:
     
     
     if amount >= 1:
-        imgWarped = label.getWarp(img, biggest, amount)
+        imgWarped = label.getWarp(img)
         for i in range(1, amount+1):
             cv2.imshow("Warp"+str(i), imgWarped[i-1])
             number = label2number(imgWarped[i-1])
+            imgGray,imgBlur,imgCanny,imgDial,imgThress = number.preProcessing(imgWarped[i-1])
+            # cv2.imshow('imgThress', imgThress)
+            contours = number.findContour(imgCanny)
+            cv2.imshow('imgcontours', contours)
+            crop_img = number.crop(imgWarped[i-1])
+            # print('crop',crop_img) 
             predict = number.prediction()
             print('predict :',predict)
             prediction.append(predict)
