@@ -18,8 +18,8 @@ class label2number:
     def hsvThresh(self,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-        lower = np.array([100, 15, 0])
-        upper = np.array([150, 255, 180])
+        lower = np.array([90, 0, 0])
+        upper = np.array([125, 65, 190])
 
         mask = cv2.inRange(hsv, lower, upper)
         result = cv2.bitwise_and(img, img, mask=mask)
@@ -55,7 +55,7 @@ class label2number:
         for cnt in contours:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 4)
             area = cv2.contourArea(cnt)
-            if area > 200:
+            if 200 < area < 3000:
                 peri = cv2.arcLength(cnt, True)
                 vertices = cv2.approxPolyDP(cnt, peri*0.01, True)
                 x, y, w, h = cv2.boundingRect(vertices)                
@@ -67,6 +67,7 @@ class label2number:
         return self.imgContour
     
     def crop(self,img):
+        self.crop_img = []
         for p in self.position:
             x, y, w, h = p
             if w > h :
@@ -114,30 +115,30 @@ class label2number:
 
 
 
-img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
-cv2.imshow('img', img)
-main = label2number(img)
-imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
-imgContour = main.findContour(imgCanny)
-crop = main.crop(img)
-predict,imgInput = main.prediction()
+# img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
+# cv2.imshow('img', img)
+# main = label2number(img)
+# imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
+# imgContour = main.findContour(imgCanny)
+# crop = main.crop(img)
+# predict,imgInput = main.prediction()
 
-cv2.imshow("Gray",imgGray)
-# cv2.imshow("Blur",imgBlur)  
-cv2.imshow("Canny",imgCanny) 
-# cv2.imshow('dilate', imgDial)
-# cv2.imshow('erode', imgThres)
-cv2.imshow('imgContour', imgContour)
+# cv2.imshow("Gray",imgGray)
+# # cv2.imshow("Blur",imgBlur)  
+# cv2.imshow("Canny",imgCanny) 
+# # cv2.imshow('dilate', imgDial)
+# # cv2.imshow('erode', imgThres)
+# cv2.imshow('imgContour', imgContour)
 
-for i,cro in enumerate(crop):
-    cv2.imshow('inference'+str(i), cro)
+# for i,cro in enumerate(crop):
+#     cv2.imshow('inference'+str(i), cro)
 
-for j,inp in enumerate(imgInput):
-    cv2.imshow('Input'+str(j), inp)
+# for j,inp in enumerate(imgInput):
+#     cv2.imshow('Input'+str(j), inp)
 
-print(predict)
+# print(predict)
 
-cv2.waitKey(0)
+# cv2.waitKey(0)
 
 
 

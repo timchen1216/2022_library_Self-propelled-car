@@ -1,4 +1,3 @@
-from matplotlib.pyplot import contour
 import numpy as np
 import cv2
 from Img2label import img2lable
@@ -32,7 +31,7 @@ while True:
             cv2.imshow('imgcontours', contours)
             crop_img = number.crop(imgWarped[i-1])
             # print('crop',crop_img) 
-            predict = number.prediction()
+            predict,imgInput = number.prediction()
             print('predict :',predict)
             prediction.append(predict)
 
