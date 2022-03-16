@@ -15,34 +15,53 @@ class label2number:
         self.model = load_model(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model.h5')
         self.model.load_weights(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model_weights.h5')
 
+    def hsvThresh(self,img):
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        lower = np.array([100, 15, 0])
+        upper = np.array([150, 255, 180])
+
+        mask = cv2.inRange(hsv, lower, upper)
+        result = cv2.bitwise_and(img, img, mask=mask)
+        return result
+
+    def auto_canny(self, image):
+        sigma=0.33
+        # 計算單通道像素強度的中位數
+        v = np.median(image)
+
+        # 選擇合適的lower和upper值，然後應用它們
+        lower = int(max(0, (1.0 - sigma) * v))
+        upper = int(min(255, (1.0 + sigma) * v))
+        edged = cv2.Canny(image, lower, upper)
+
+        return edged
+
     def preProcessing(self,img):
-        imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)        
+        imghsv = label2number.hsvThresh(self,img)
+        imgGray = cv2.cvtColor(imghsv,cv2.COLOR_BGR2GRAY)        
         imgBlur = cv2.GaussianBlur(imgGray,(3,3),1)        
-        imgCanny = cv2.Canny(imgBlur,200,200)        
+        imgCanny = label2number.auto_canny(self,imgBlur)        
         kernel = np.ones((5,5))
         imgDial = cv2.dilate(imgCanny,kernel,iterations=2)
         imgThres = cv2.erode(imgDial,kernel,iterations=1)
         
         return imgGray,imgBlur,imgCanny,imgDial,imgThres
     
-    def findContour(self,imgCanny):
+    def findContour(self,img):
         contours, hierarchy = cv2.findContours(
-            imgCanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        
-        width,height = imgCanny.shape
+            img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         for cnt in contours:
-            cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
-            arcLengthh = cv2.arcLength(cnt, True)
+            cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 4)
             area = cv2.contourArea(cnt)
-            if 50 < arcLengthh < 900 and area > 500:
-                peri = cv2.arcLength(cnt, False)
-                vertices = cv2.approxPolyDP(cnt, peri*0.02, False)
-                x, y, w, h = cv2.boundingRect(vertices)
-                if 0.05*width < x < width and 0.02*height < y < 0.9*height:
-                    pos = [x, y, w, h]
-                    self.position.append(pos)
-                    cv2.rectangle(self.imgContour, (x, y), (x+w, y+h), (0, 255, 0), 4)
+            if area > 200:
+                peri = cv2.arcLength(cnt, True)
+                vertices = cv2.approxPolyDP(cnt, peri*0.01, True)
+                x, y, w, h = cv2.boundingRect(vertices)                
+                pos = [x, y, w, h]
+                self.position.append(pos)
+                cv2.rectangle(self.imgContour, (x, y), (x+w, y+h), (0, 255, 0), 4)
 
         self.position.sort()
         return self.imgContour
@@ -64,19 +83,15 @@ class label2number:
         return self.crop_img
 
     def prediction(self):
+        imgInput = []
         for cro in self.crop_img:
-            cro = cv2.resize(cro, (480, 480))
+            cro = cv2.resize(cro, (28, 28))
             cro_gray = cv2.cvtColor(cro, cv2.COLOR_BGR2GRAY)
-            img_3 = 255 - cro_gray
-            img_3 = img_3.astype('float32')
-            img_4 = img_3 - np.amin(img_3)
-            img_5 = 255 * img_4 / (np.amax(img_4))
-            kernel = np.ones((5, 5), np.uint8)
-            img_6 = cv2.dilate(img_5, kernel, iterations=3)
-            img_7 = cv2.resize(img_6, (28, 28), 1)
-            # cv2.imshow('input'+str(n), img_8)
+            ret, th2 = cv2.threshold(cro_gray, 150, 255, cv2.THRESH_BINARY_INV)            
+            inp = cv2.resize(th2, (0, 0), fx=10, fy=10)
+            imgInput.append(inp)
 
-            x_test_image = np.reshape(img_7, (1, 28, 28))
+            x_test_image = np.reshape(th2, (1, 28, 28))
 
             # convert 2-D 28x28 image to 4-D nx28x28x1  array
             x_Test4D = x_test_image.reshape(
@@ -95,31 +110,34 @@ class label2number:
                 if prediction[0,i] == pre_max:
                     self.predict.append(i)
             
-        return self.predict
+        return self.predict,imgInput
 
 
 
-# img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
-# cv2.imshow('img', img)
-# main = label2number(img)
-# imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
-# imgContour = main.findContour(imgThres)
-# crop = main.crop(img)
-# predict = main.prediction()
+img = cv2.imread(r'C:\Users\timch\MyPython\opencv_test\369.png')
+cv2.imshow('img', img)
+main = label2number(img)
+imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(img)
+imgContour = main.findContour(imgCanny)
+crop = main.crop(img)
+predict,imgInput = main.prediction()
 
-# cv2.imshow("Gray",imgGray)
+cv2.imshow("Gray",imgGray)
 # cv2.imshow("Blur",imgBlur)  
-# cv2.imshow("Canny",imgCanny) 
+cv2.imshow("Canny",imgCanny) 
 # cv2.imshow('dilate', imgDial)
 # cv2.imshow('erode', imgThres)
-# cv2.imshow('imgContour', imgContour)
+cv2.imshow('imgContour', imgContour)
 
-# # for i,cro in enumerate(crop):
-# #     cv2.imshow('inference'+str(i), cro)
+for i,cro in enumerate(crop):
+    cv2.imshow('inference'+str(i), cro)
 
-# print(predict)
+for j,inp in enumerate(imgInput):
+    cv2.imshow('Input'+str(j), inp)
 
-# cv2.waitKey(0)
+print(predict)
+
+cv2.waitKey(0)
 
 
 
