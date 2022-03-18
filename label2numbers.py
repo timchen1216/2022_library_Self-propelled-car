@@ -21,6 +21,7 @@ class label2number:
         sy, ly, sx, lx = int(0.1*height), int(0.9*height) , int(0.1*weight), int(0.9*weight)
         self.img = imgLable[sy:ly, sx:lx]
         self.imgContour = self.img.copy()
+        return self.img
 
     def hsvThresh(self,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -62,7 +63,7 @@ class label2number:
         for cnt in contours:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 4)
             area = cv2.contourArea(cnt)
-            if 200 < area < 3000:
+            if 200 < area:
                 peri = cv2.arcLength(cnt, True)
                 vertices = cv2.approxPolyDP(cnt, peri*0.01, True)
                 x, y, w, h = cv2.boundingRect(vertices)                

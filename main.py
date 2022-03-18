@@ -26,12 +26,15 @@ while True:
         for i in range(1, amount+1):
             cv2.imshow("Warp"+str(i), imgWarped[i-1])
             number = label2number(imgWarped[i-1])
-            imgGray,imgBlur,imgCanny,imgDial,imgThress = number.preProcessing(imgWarped[i-1])
+            reimg = number.reimg(imgWarped[i-1])
+            cv2.imshow("reimg"+str(i), reimg)
+            imgGray,imgBlur,imgCanny,imgDial,imgThress = number.preProcessing(reimg)
             # cv2.imshow('imgThress', imgThress)
             contours = number.findContour(imgCanny)
             cv2.imshow('imgcontours', contours)
-            crop_img = number.crop(imgWarped[i-1])
-            # print('crop',crop_img) 
+            crop_img = number.crop(reimg)
+            for j, cro in enumerate(crop_img):
+                 cv2.imshow("In"+str(j), cro)
             predict,imgInput = number.prediction()
             print('predict :',predict)
             prediction.append(predict)
