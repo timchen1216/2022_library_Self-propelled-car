@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from Img2label import img2lable
+from Img2label import Webcam2label
 from Label2numbers import label2number
 
 frameWidth = 640
@@ -10,13 +10,14 @@ cap.set(3, frameWidth)
 cap.set(4, frameHeight)
 
 
+
 prediction = []
 
 while True:
     success, img = cap.read()
-    label = img2lable(img)
+    label = Webcam2label(img)
     imgThres = label.preProcessing(img)
-    biggest, amount = label.getContours(imgThres)
+    amount = label.getContours(imgThres)
     cv2.imshow("Input", img)
     
     

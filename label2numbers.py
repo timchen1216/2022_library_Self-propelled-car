@@ -5,8 +5,9 @@ from keras.models import load_model
 
 
 class label2number:
-    def __init__(self, img):
-        self.imgContour = img.copy()
+    def __init__(self, imgLable):       
+        self.img = []
+        self.imgContour = imgLable.copy()        
         self.position = []
         self.crop_img = []
         self.predict = []
@@ -14,6 +15,12 @@ class label2number:
         # loadModel        
         self.model = load_model(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model.h5')
         self.model.load_weights(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\my_model_weights.h5')
+    
+    def reimg(self,imgLable):
+        height, weight, channel = imgLable.shape
+        sy, ly, sx, lx = int(0.1*height), int(0.9*height) , int(0.1*weight), int(0.9*weight)
+        self.img = imgLable[sy:ly, sx:lx]
+        self.imgContour = self.img.copy()
 
     def hsvThresh(self,img):
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
