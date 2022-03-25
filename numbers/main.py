@@ -3,6 +3,7 @@ import cv2
 from Img2label import Webcam2label
 from Label2numbers import label2number
 
+
 frameWidth = 640
 frameHeight = 480
 cap = cv2.VideoCapture(0)
@@ -19,7 +20,7 @@ while True:
     imgThres = label.preProcessing(img)
     amount = label.getContours(imgThres)
     cv2.imshow("Input", img)
-    
+        
     
     if amount >= 1:
         imgWarped = label.getWarp(img)
@@ -30,7 +31,7 @@ while True:
             cv2.imshow("reimg"+str(i), reimg)
             imgGray,imgBlur,imgCanny,imgDial,imgThress = number.preProcessing(reimg)
             # cv2.imshow('imgThress', imgThress)
-            contours = number.findContour(imgCanny)
+            contours = number.findContour(imgThress)
             cv2.imshow('imgcontours', contours)
             crop_img = number.crop(reimg)
             for j, cro in enumerate(crop_img):
