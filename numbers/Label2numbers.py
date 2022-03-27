@@ -67,17 +67,7 @@ class label2number:
     def crop(self,img):
         self.crop_img = []
         for p in self.position:
-            x, y, w, h = p
-            # if w > h :
-            #     if y+h/2-w/2 > 0 :
-            #         crop = img[int(y+h/2-w/2):int(y+h/2+w/2), x:x+w]
-            #     else:
-            #         crop = img[0:0+w, x:x+w]
-            # elif h > w :
-            #     if x+w/2-h/2 > 0 :
-            #         crop = img[y:y+h, int(x+w/2-h/2):int(x+w/2+h/2)]
-            #     else :
-            #         crop = img[y:y+h, 0:0+h]
+            x, y, w, h = p            
             crop = img[y:y+h, x:x+w]
             self.crop_img.append(crop)
         return self.crop_img
@@ -85,13 +75,35 @@ class label2number:
     def prediction(self):
         imgInput = []
         for cro in self.crop_img:
-            cro = cv2.resize(cro, (28, 28))
+            # resize to x*28 or 28*x
+            himg, wimg = cro.shape[:2]
+            if himg == wimg:
+                cro = cv2.resize(cro, (28, 28))
+            elif himg > wimg:
+                cro = cv2.resize(cro, (int(wimg/himg*28), 28))
+            elif himg < wimg:
+                cro = cv2.resize(cro, (28, int(himg/wimg*28)))
+            
+            # gray & binary thresh
             cro_gray = cv2.cvtColor(cro, cv2.COLOR_BGR2GRAY)
-            ret, th2 = cv2.threshold(cro_gray, 150, 255, cv2.THRESH_BINARY_INV)            
-            inp = cv2.resize(th2, (0, 0), fx=10, fy=10)
+            ret, th2 = cv2.threshold(cro_gray, 150, 255, cv2.THRESH_BINARY_INV) 
+
+            # resize to rectangle
+            h, w = th2.shape
+            bg = np.zeros([28,28], dtype=np.uint8)
+            if h == w :
+                pass
+            elif h > w :
+                l = (h-w)//2
+                bg[0:28, l:l+w] = th2
+            elif w > h :
+                l = (w-h)//2
+                bg[l:l+h, 0:28] = th2
+
+            inp = cv2.resize(bg, (0, 0), fx=10, fy=10)
             imgInput.append(inp)
 
-            x_test_image = np.reshape(th2, (1, 28, 28))
+            x_test_image = np.reshape(bg, (1, 28, 28))
 
             # convert 2-D 28x28 image to 4-D nx28x28x1  array
             x_Test4D = x_test_image.reshape(
@@ -114,31 +126,33 @@ class label2number:
 
 
 
-# img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\369.png')
-# cv2.imshow('img', img)
-# main = label2number(img)
-# reimg = main.reimg(img)
-# imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(reimg)
-# imgContour = main.findContour(imgThres)
-# crop = main.crop()
-# predict,imgInput = main.prediction()
+img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\038.png')
+cv2.imshow('img', img)
+main = label2number(img)
+reimg = main.reimg(img)
+imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(reimg)
+imgContour = main.findContour(imgThres)
+crop = main.crop(reimg)
+predict,imgInput = main.prediction()
 
 # cv2.imshow("Gray",imgGray)
-# # cv2.imshow("Blur",imgBlur)  
+# cv2.imshow("Blur",imgBlur)  
 # cv2.imshow("Canny",imgCanny) 
 # cv2.imshow('dilate', imgDial)
 # cv2.imshow('erode', imgThres)
-# cv2.imshow('imgContour', imgContour)
+cv2.imshow('imgContour', imgContour)
+print('img', img.shape)
+print('reimg', reimg.shape)
 
 # for i,cro in enumerate(crop):
 #     cv2.imshow('inference'+str(i), cro)
 
-# for j,inp in enumerate(imgInput):
-#     cv2.imshow('Input'+str(j), inp)
+for j,inp in enumerate(imgInput):
+    cv2.imshow('Input'+str(j), inp)
 
-# print(predict)
+print(predict)
 
-# cv2.waitKey(0)
+cv2.waitKey(0)
 
 
 
