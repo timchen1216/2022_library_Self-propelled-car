@@ -1,3 +1,4 @@
+from cv2 import threshold
 import numpy as np
 import cv2
 from keras.models import load_model
@@ -7,7 +8,6 @@ from keras.models import load_model
 
 class label2number:
     def __init__(self, imgLable):       
-        self.img = []
         self.imgCanny = []              
         self.position = []
         self.crop_img = []
@@ -18,44 +18,52 @@ class label2number:
         self.model.load_weights(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
     
     def reimg(self,imgLable):
-        height, weight, channel = imgLable.shape
-        sy, ly, sx, lx = int(0.1*height), int(0.9*height) , int(0.1*weight), int(0.9*weight)
-        self.img = imgLable[sy:ly, sx:lx]
-        self.imgContour = self.img.copy()
-        return self.img
+        self.imgContour = imgLable.copy()
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        ret, th = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+        horImg = th.copy()
+        verImg = th.copy()
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (50,3))
+        horImg = cv2.erode(horImg, kernal, iterations=1)
+        horImg = cv2.dilate(horImg, kernal, iterations=2)
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,50))
+        verImg = cv2.erode(verImg, kernal, iterations=1)
+        verImg = cv2.dilate(verImg, kernal, iterations=2)
+        mask = horImg + verImg
+        kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+        mask = cv2.dilate(mask, kernal_mask, iterations=3)
+        mask = 255 - mask
+        self.no_border = cv2.bitwise_and(th, mask)
+        imgCanny = cv2.Canny(self.no_border, 0, 255)
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        imgDial = cv2.dilate(imgCanny,kernel,iterations=2)
+        self.imgThres = cv2.erode(imgDial,kernel,iterations=1)
+        return self.imgThres
 
-    def auto_canny(self, image):
+    def auto_threshold(self, gray):
         sigma=0.33
         # 計算單通道像素強度的中位數
-        v = np.median(image)
-
-        # 選擇合適的lower和upper值，然後應用它們
-        lower = int(max(0, (1.0 - sigma) * v))
-        upper = int(min(255, (1.0 + sigma) * v))
-        edged = cv2.Canny(image, lower, upper)
-
-        return edged
-
-    def preProcessing(self,img):
-        imgGray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)        
-        imgBlur = cv2.GaussianBlur(imgGray,(3,3),1)        
-        imgCanny = label2number.auto_canny(self,imgBlur)        
-        kernel = np.ones((5,5))
-        imgDial = cv2.dilate(imgCanny,kernel,iterations=2)
-        imgThres = cv2.erode(imgDial,kernel,iterations=1)
+        v = np.median(gray)
         
-        return imgGray,imgBlur,imgCanny,imgDial,imgThres
-    
-    def findContour(self,img):
+
+        # # 選擇合適的lower和upper值，然後應用它們
+        # lower = int(max(0, (1.0 - sigma) * v))
+        # upper = int(min(255, (1.0 + sigma) * v))
+        ret, th = cv2.threshold(gray, gray, 255, cv2.THRESH_BINARY_INV)
+
+        return ret, th
+
+   
+    def findContour(self):
         contours, hierarchy = cv2.findContours(
-            img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            self.imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         for cnt in contours:
-            cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 4)
+            cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
             area = cv2.contourArea(cnt)
             peri = cv2.arcLength(cnt, True)
-            if True:                
-                vertices = cv2.approxPolyDP(cnt, peri*0.05, True)
+            if area > 200:                
+                vertices = cv2.approxPolyDP(cnt, peri*0.02, True)
                 x, y, w, h = cv2.boundingRect(vertices)                
                 pos = [x, y, w, h]
                 self.position.append(pos)
@@ -64,11 +72,11 @@ class label2number:
         self.position.sort()
         return self.imgContour
     
-    def crop(self,img):
+    def crop(self,imgLable):
         self.crop_img = []
         for p in self.position:
             x, y, w, h = p            
-            crop = img[y:y+h, x:x+w]
+            crop = self.no_border[y:y+h, x:x+w]
             self.crop_img.append(crop)
         return self.crop_img
 
@@ -84,21 +92,24 @@ class label2number:
             elif himg < wimg:
                 cro = cv2.resize(cro, (28, int(himg/wimg*28)))
             
-            # gray & binary thresh
-            cro_gray = cv2.cvtColor(cro, cv2.COLOR_BGR2GRAY)
-            ret, th2 = cv2.threshold(cro_gray, 150, 255, cv2.THRESH_BINARY_INV) 
+            # preprocessing
+            # cro_gray = cv2.cvtColor(cro, cv2.COLOR_BGR2GRAY)
+            # ret, th2 = cv2.threshold(cro, 150, 255, cv2.THRESH_BINARY_INV)
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,1))
+            # Dial = cv2.dilate(th2,kernel,iterations=5)
+            # Thresh = cv2.erode(Dial,kernel,iterations=1) 
 
             # resize to rectangle
-            h, w = th2.shape
+            h, w = cro.shape
             bg = np.zeros([28,28], dtype=np.uint8)
             if h == w :
                 pass
             elif h > w :
                 l = (h-w)//2
-                bg[0:28, l:l+w] = th2
+                bg[0:28, l:l+w] = cro
             elif w > h :
                 l = (w-h)//2
-                bg[l:l+h, 0:28] = th2
+                bg[l:l+h, 0:28] = cro
 
             inp = cv2.resize(bg, (0, 0), fx=10, fy=10)
             imgInput.append(inp)
@@ -126,23 +137,18 @@ class label2number:
 
 
 
-img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\038.png')
+img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
 cv2.imshow('img', img)
 main = label2number(img)
-reimg = main.reimg(img)
-imgGray,imgBlur,imgCanny,imgDial,imgThres = main.preProcessing(reimg)
-imgContour = main.findContour(imgThres)
-crop = main.crop(reimg)
+thresh = main.reimg(img)
+imgContour = main.findContour()
+crop = main.crop(img)
 predict,imgInput = main.prediction()
 
-# cv2.imshow("Gray",imgGray)
-# cv2.imshow("Blur",imgBlur)  
-# cv2.imshow("Canny",imgCanny) 
-# cv2.imshow('dilate', imgDial)
-# cv2.imshow('erode', imgThres)
+
 cv2.imshow('imgContour', imgContour)
-print('img', img.shape)
-print('reimg', reimg.shape)
+cv2.imshow('thresh', thresh)
+
 
 # for i,cro in enumerate(crop):
 #     cv2.imshow('inference'+str(i), cro)
@@ -153,9 +159,3 @@ for j,inp in enumerate(imgInput):
 print(predict)
 
 cv2.waitKey(0)
-
-
-
-
-
-    
