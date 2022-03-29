@@ -3,10 +3,8 @@ import cv2
 
 img = cv2.imread(
     r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\6.jpg')
-white = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\white.jpg')
 cv2.imshow('img', img)
-# cv2.imshow('white', white)
+
 
 # resize to x*28 or 28*x
 himg, wimg, channel = img.shape
