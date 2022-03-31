@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 img = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
+    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\369.png')
 
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)

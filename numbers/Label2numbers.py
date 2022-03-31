@@ -1,4 +1,3 @@
-from cv2 import threshold
 import numpy as np
 import cv2
 from keras.models import load_model
@@ -23,40 +22,27 @@ class label2number:
         ret, th = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
         horImg = th.copy()
         verImg = th.copy()
-        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (50,3))
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,2))
         horImg = cv2.erode(horImg, kernal, iterations=1)
         horImg = cv2.dilate(horImg, kernal, iterations=2)
-        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,50))
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (2,60))
         verImg = cv2.erode(verImg, kernal, iterations=1)
         verImg = cv2.dilate(verImg, kernal, iterations=2)
         mask = horImg + verImg
         kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-        mask = cv2.dilate(mask, kernal_mask, iterations=3)
+        mask = cv2.dilate(mask, kernal_mask, iterations=4)
         mask = 255 - mask
         self.no_border = cv2.bitwise_and(th, mask)
-        imgCanny = cv2.Canny(self.no_border, 0, 255)
+        self.imgCanny = cv2.Canny(self.no_border, 0, 255)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-        imgDial = cv2.dilate(imgCanny,kernel,iterations=2)
-        self.imgThres = cv2.erode(imgDial,kernel,iterations=1)
-        return self.imgThres
-
-    def auto_threshold(self, gray):
-        sigma=0.33
-        # 計算單通道像素強度的中位數
-        v = np.median(gray)
-        
-
-        # # 選擇合適的lower和upper值，然後應用它們
-        # lower = int(max(0, (1.0 - sigma) * v))
-        # upper = int(min(255, (1.0 + sigma) * v))
-        ret, th = cv2.threshold(gray, gray, 255, cv2.THRESH_BINARY_INV)
-
-        return ret, th
+        self.imgDial = cv2.dilate(self.imgCanny,kernel,iterations=3)
+        self.imgThres = cv2.erode(self.imgDial,kernel,iterations=1)
+        return self.imgDial, self.imgThres, self.no_border
 
    
     def findContour(self):
         contours, hierarchy = cv2.findContours(
-            self.imgThres, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            self.imgCanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         for cnt in contours:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
@@ -83,6 +69,12 @@ class label2number:
     def prediction(self):
         imgInput = []
         for cro in self.crop_img:
+
+            # # preprocessing
+            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
+            # Dial = cv2.dilate(cro,kernel,iterations=2)
+            # cro = cv2.erode(Dial,kernel,iterations=2) 
+
             # resize to x*28 or 28*x
             himg, wimg = cro.shape[:2]
             if himg == wimg:
@@ -92,13 +84,6 @@ class label2number:
             elif himg < wimg:
                 cro = cv2.resize(cro, (28, int(himg/wimg*28)))
             
-            # preprocessing
-            # cro_gray = cv2.cvtColor(cro, cv2.COLOR_BGR2GRAY)
-            # ret, th2 = cv2.threshold(cro, 150, 255, cv2.THRESH_BINARY_INV)
-            # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (1,1))
-            # Dial = cv2.dilate(th2,kernel,iterations=5)
-            # Thresh = cv2.erode(Dial,kernel,iterations=1) 
-
             # resize to rectangle
             h, w = cro.shape
             bg = np.zeros([28,28], dtype=np.uint8)
@@ -137,17 +122,19 @@ class label2number:
 
 
 
-img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
+img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\369.png')
 cv2.imshow('img', img)
 main = label2number(img)
-thresh = main.reimg(img)
+imgDial, imgThres, no_border = main.reimg(img)
 imgContour = main.findContour()
 crop = main.crop(img)
 predict,imgInput = main.prediction()
 
 
 cv2.imshow('imgContour', imgContour)
-cv2.imshow('thresh', thresh)
+# cv2.imshow('imgDial', imgDial)
+# cv2.imshow('imgThres', imgThres)
+cv2.imshow('no_border', no_border)
 
 
 # for i,cro in enumerate(crop):
