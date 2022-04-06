@@ -48,7 +48,7 @@ class label2number:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
             area = cv2.contourArea(cnt)
             peri = cv2.arcLength(cnt, True)
-            if area > 200:                
+            if area > 100:                
                 vertices = cv2.approxPolyDP(cnt, peri*0.02, True)
                 x, y, w, h = cv2.boundingRect(vertices)                
                 pos = [x, y, w, h]
@@ -122,7 +122,7 @@ class label2number:
 
 
 
-img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\369.png')
+img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\3529.png')
 cv2.imshow('img', img)
 main = label2number(img)
 imgDial, imgThres, no_border = main.reimg(img)
