@@ -1,13 +1,13 @@
 import mysql.connector
 import shutil
 import os
-shutil.rmtree('./1')
-shutil.rmtree('./2') 
-shutil.rmtree('./3')
-os.mkdir('./1')
-os.mkdir('./2')
-os.mkdir('./3')
-connection = mysql.connector.connect(host='192.168.255.205',
+shutil.rmtree(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\1')
+shutil.rmtree(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\2') 
+shutil.rmtree(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\3')
+os.mkdir(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\1')
+os.mkdir(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\2')
+os.mkdir(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\3')
+connection = mysql.connector.connect(host='192.168.146.205',
                                     user='library',
                                     password='123456789')
 
@@ -31,7 +31,7 @@ def RetrieveBlob(ID):
     SQLstatement2 = "SELECT * FROM detect where number = '{0}'"
     cursor.execute(SQLstatement2.format(str(ID)))
     Myresult = cursor.fetchone()[2]
-    storefilepath = "./"+str(cab)+"/{0}.jpg".format(str(ID)) #存到此路徑下名為1的資料夾內
+    storefilepath = "C:/Users/timch/MyPython/2022_library_Self-propelled-car/"+str(cab)+"/{0}.jpg".format(str(ID)) #存到此路徑下名為1的資料夾內
     with open(storefilepath,"wb") as File:
         File.write(Myresult)
         File.close()

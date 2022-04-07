@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os
 from keras.models import load_model
 
 
@@ -19,7 +20,7 @@ class label2number:
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret, th = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+        ret, th = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY_INV)
         horImg = th.copy()
         verImg = th.copy()
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,2))
@@ -30,14 +31,14 @@ class label2number:
         verImg = cv2.dilate(verImg, kernal, iterations=2)
         mask = horImg + verImg
         kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-        mask = cv2.dilate(mask, kernal_mask, iterations=4)
+        mask = cv2.dilate(mask, kernal_mask, iterations=2)
         mask = 255 - mask
         self.no_border = cv2.bitwise_and(th, mask)
         self.imgCanny = cv2.Canny(self.no_border, 0, 255)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-        self.imgDial = cv2.dilate(self.imgCanny,kernel,iterations=3)
+        self.imgDial = cv2.dilate(self.no_border,kernel,iterations=1)
         self.imgThres = cv2.erode(self.imgDial,kernel,iterations=1)
-        return self.imgDial, self.imgThres, self.no_border
+        return self.imgDial, self.imgThres, self.no_border, gray, th
 
    
     def findContour(self):
@@ -62,7 +63,7 @@ class label2number:
         self.crop_img = []
         for p in self.position:
             x, y, w, h = p            
-            crop = self.no_border[y:y+h, x:x+w]
+            crop = self.imgThres[y:y+h, x:x+w]
             self.crop_img.append(crop)
         return self.crop_img
 
@@ -121,28 +122,35 @@ class label2number:
         return self.predict,imgInput
 
 
+for i in range(1,4,1):
+    initial_count = 0
+    dir = 'C:/Users/timch\MyPython/2022_library_Self-propelled-car/'+str(i)
+    for path in os.listdir(dir):
+        if os.path.isfile(os.path.join(dir, path)):
+            initial_count += 1
+    for j in range(1,initial_count+1,1):
+        img = cv2.imread("C:/Users/timch\MyPython/2022_library_Self-propelled-car/"+str(i)+'/'+str(j)+'.jpg')
+        cv2.imshow('img'+str(i)+'-'+str(j),img)
+        main = label2number(img)
+        imgDial, imgThres, no_border, gray, th = main.reimg(img)
+        imgContour = main.findContour()
+        crop = main.crop(img)
+        predict,imgInput = main.prediction()
+        cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
+        cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
+        cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
+        cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
+        # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
+        # cv2.imshow('th'+str(i)+'-'+str(j), th)
 
-img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\3529.png')
-cv2.imshow('img', img)
-main = label2number(img)
-imgDial, imgThres, no_border = main.reimg(img)
-imgContour = main.findContour()
-crop = main.crop(img)
-predict,imgInput = main.prediction()
 
+        # for i,cro in enumerate(crop):
+        #     cv2.imshow('inference'+str(i), cro)
 
-cv2.imshow('imgContour', imgContour)
-# cv2.imshow('imgDial', imgDial)
-# cv2.imshow('imgThres', imgThres)
-cv2.imshow('no_border', no_border)
+        # for l,inp in enumerate(imgInput):
+        #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
-
-# for i,cro in enumerate(crop):
-#     cv2.imshow('inference'+str(i), cro)
-
-for j,inp in enumerate(imgInput):
-    cv2.imshow('Input'+str(j), inp)
-
-print(predict)
+        print(predict)
+    print(initial_count)
 
 cv2.waitKey(0)
