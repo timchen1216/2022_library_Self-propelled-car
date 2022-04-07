@@ -43,13 +43,13 @@ class label2number:
    
     def findContour(self):
         contours, hierarchy = cv2.findContours(
-            self.imgCanny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            self.no_border, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
         for cnt in contours:
             cv2.drawContours(self.imgContour, cnt, -1, (255, 0, 0), 1)
             area = cv2.contourArea(cnt)
             peri = cv2.arcLength(cnt, True)
-            if area > 100:                
+            if area > 200:                
                 vertices = cv2.approxPolyDP(cnt, peri*0.02, True)
                 x, y, w, h = cv2.boundingRect(vertices)                
                 pos = [x, y, w, h]
@@ -137,11 +137,11 @@ for i in range(1,4,1):
         crop = main.crop(img)
         predict,imgInput = main.prediction()
         cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
-        cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
-        cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
+        # cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
+        # cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
         cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
-        cv2.imshow('th'+str(i)+'-'+str(j), th)
+        # cv2.imshow('th'+str(i)+'-'+str(j), th)
 
 
         # for i,cro in enumerate(crop):
