@@ -151,6 +151,6 @@ for i in range(1,4,1):
         #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
-    print(initial_count)
+    # print(initial_count)
 
 cv2.waitKey(0)
