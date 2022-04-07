@@ -20,7 +20,7 @@ class label2number:
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret, th = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY_INV)
+        ret, th = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY_INV)
         horImg = th.copy()
         verImg = th.copy()
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,2))
@@ -141,7 +141,7 @@ for i in range(1,4,1):
         cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
         cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
-        # cv2.imshow('th'+str(i)+'-'+str(j), th)
+        cv2.imshow('th'+str(i)+'-'+str(j), th)
 
 
         # for i,cro in enumerate(crop):
