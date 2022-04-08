@@ -1,5 +1,5 @@
 import pymongo
-client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://timchen:timchen@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 db = client.book
 
 correct=db.correct

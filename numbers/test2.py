@@ -1,17 +1,18 @@
 import numpy as np
-import cv2
-import os
+import pymongo
 
-for i in range(1,4,1):
-    initial_count = 0
-    dir = 'C:/Users/timch\MyPython/2022_library_Self-propelled-car/'+str(i)
-    for path in os.listdir(dir):
-        if os.path.isfile(os.path.join(dir, path)):
-            initial_count += 1
-    for j in range(1,initial_count+1,1):
-        img = cv2.imread("C:/Users/timch\MyPython/2022_library_Self-propelled-car/"+str(i)+'/'+str(j)+'.jpg')
-        cv2.imshow('img'+str(i)+'-'+str(j),img)
-    print(initial_count)
+client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 
-cv2.waitKey(0)
+db = client.book
 
+correct=db.correct
+detect=db.detect
+mis=db.mis
+
+b = "1"
+a = [1, 2, 3, 4]
+
+correct.insert_one({
+    "書櫃":b,
+    "編號":b
+})
