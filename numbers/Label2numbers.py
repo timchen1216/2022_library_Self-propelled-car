@@ -14,8 +14,8 @@ class label2number:
         self.predict = []
 
         # loadModel        
-        self.model = load_model(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\numbers\my_model.h5')
-        self.model.load_weights(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
+        self.model = load_model(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model.h5')
+        self.model.load_weights(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
     
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
@@ -124,12 +124,12 @@ class label2number:
 
 for i in range(1,4,1):
     initial_count = 0
-    dir = 'C:/Users/timch\MyPython/2022_library_Self-propelled-car/'+str(i)
+    dir = 'C:/Users/User/2022_library_Self-propelled-car/'+str(i)
     for path in os.listdir(dir):
         if os.path.isfile(os.path.join(dir, path)):
             initial_count += 1
     for j in range(1,initial_count+1,1):
-        img = cv2.imread("C:/Users/timch\MyPython/2022_library_Self-propelled-car/"+str(i)+'/'+str(j)+'.jpg')
+        img = cv2.imread("C:/Users/User/2022_library_Self-propelled-car/"+str(i)+'/'+str(j)+'.jpg')
         cv2.imshow('img'+str(i)+'-'+str(j),img)
         main = label2number(img)
         imgDial, imgThres, no_border, gray, th = main.reimg(img)
