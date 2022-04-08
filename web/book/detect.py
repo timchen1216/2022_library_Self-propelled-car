@@ -9,4 +9,9 @@ r="a"
 correct.insert_one({
     "書櫃":r,
     "編號":"625.8"
-}) 
+})
+
+detect.insert_one({
+    "書櫃":"b",
+    "編號":"714.8"
+})
