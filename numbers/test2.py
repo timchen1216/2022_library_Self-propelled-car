@@ -9,10 +9,10 @@ correct=db.correct
 detect=db.detect
 mis=db.mis
 
-b = '1'
+b = "1"
 a = [1, 2, 3, 4]
 
-detect.insert_one({
+correct.insert_one({
     "書櫃":b,
-    "編號":b,
+    "編號":b
 })
