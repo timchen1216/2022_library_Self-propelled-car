@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import os
 from keras.models import load_model
+import pymongo
 
 
 
@@ -151,6 +152,20 @@ for i in range(1,4,1):
         #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
+        client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+
+        db = client.book
+
+        correct=db.correct
+        detect=db.detect
+        mis=db.mis
+
+        num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+
+        correct.insert_one({
+            "書櫃":i,
+            "編號":num
+        })
     # print(initial_count)
 
 cv2.waitKey(0)
