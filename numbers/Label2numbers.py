@@ -162,7 +162,7 @@ for i in range(1,4,1):
 
         num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
 
-        correct.insert_one({
+        detect.insert_one({
             "書櫃":i,
             "編號":num
         })
