@@ -17,7 +17,8 @@ class label2number:
         # loadModel        
         self.model = load_model(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model.h5')
         self.model.load_weights(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
-    def auto_canny(image, sigma=0.2):
+
+    def auto_canny(image, sigma=0.5):
         # 計算單通道像素強度的中位數
         v = np.median(image)
         # 選擇合適的lower和upper值，然後應用它們
@@ -28,8 +29,9 @@ class label2number:
     
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
-        blur = cv2.GaussianBlur(gray,(5,5),1)
-        canny = label2number.auto_canny(blur)
+        gray = cv2.cvtColor(imgLable, cv2.COLOR_BGR2GRAY)
+        blur = cv2.GaussianBlur(gray,(3,3),1)
+        canny = label2number.auto_canny(gray)
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
         dilate = cv2.dilate(canny, kernal, iterations=2)
         th = cv2.erode(dilate, kernal, iterations=1)
@@ -148,12 +150,12 @@ for i in range(1,4,1):
         imgContour = main.findContour()
         crop = main.crop(img)
         predict,imgInput = main.prediction()
-        cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
+        # cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
         # cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
         # cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
         # cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
-        # cv2.imshow('th'+str(i)+'-'+str(j), th)
+        cv2.imshow('th'+str(i)+'-'+str(j), th)
 
 
         # for i,cro in enumerate(crop):
@@ -163,20 +165,19 @@ for i in range(1,4,1):
         #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
-        # client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 
-        # db = client.book
+        db = client.book
 
-        # correct=db.correct
-        # detect=db.detect
-        # mis=db.mis
-
-        # num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
-
-        # detect.insert_one({
-        #     "書櫃":i,
-        #     "編號":num
-        # })
+        correct=db.correct
+        detect=db.detect
+        mis=db.mis
+        if len(predict) == 4:
+            num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+            detect.insert_one({
+                "書櫃":i,
+                "編號":num
+            })
     # print(initial_count)
 
 cv2.waitKey(0)
