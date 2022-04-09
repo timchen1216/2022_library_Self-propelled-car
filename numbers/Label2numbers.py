@@ -18,22 +18,29 @@ class label2number:
         self.model = load_model(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model.h5')
         self.model.load_weights(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
 
-    def auto_canny(image, sigma=0.5):
+    def sharpen(img, sigma=100):    
+        # sigma = 5、15、25
+        blur_img = cv2.GaussianBlur(img, (0, 0), sigma)
+        usm = cv2.addWeighted(img, 1.5, blur_img, -0.5, 0)
+
+        return usm
+
+
+    def auto_thresh(image, sigma=0.2):
         # 計算單通道像素強度的中位數
         v = np.median(image)
         # 選擇合適的lower和upper值，然後應用它們
         lower = int(max(0, (1.0 - sigma) * v))
-        upper = int(min(255, (1.0 + sigma) * v))
-        edged = cv2.Canny(image, lower, upper)
+        ret, edged = cv2.threshold(image, lower, 255, cv2.THRESH_BINARY_INV)
         return edged
     
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
-        gray = cv2.cvtColor(imgLable, cv2.COLOR_BGR2GRAY)
-        blur = cv2.GaussianBlur(gray,(3,3),1)
-        canny = label2number.auto_canny(gray)
+        sharp = label2number.sharpen(img)
+        gray = cv2.cvtColor(sharp, cv2.COLOR_BGR2GRAY)
+        th1 = label2number.auto_thresh(gray)
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-        dilate = cv2.dilate(canny, kernal, iterations=2)
+        dilate = cv2.dilate(th1, kernal, iterations=2)
         th = cv2.erode(dilate, kernal, iterations=1)
         horImg = th.copy()
         verImg = th.copy()
@@ -77,7 +84,7 @@ class label2number:
         self.crop_img = []
         for p in self.position:
             x, y, w, h = p            
-            crop = self.imgThres[y:y+h, x:x+w]
+            crop = self.no_border[y:y+h, x:x+w]
             self.crop_img.append(crop)
         return self.crop_img
 
