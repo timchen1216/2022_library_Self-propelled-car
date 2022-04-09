@@ -17,11 +17,22 @@ class label2number:
         # loadModel        
         self.model = load_model(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model.h5')
         self.model.load_weights(r'C:\Users\User\2022_library_Self-propelled-car\numbers\my_model_weights.h5')
+    def auto_canny(image, sigma=0.2):
+        # 計算單通道像素強度的中位數
+        v = np.median(image)
+        # 選擇合適的lower和upper值，然後應用它們
+        lower = int(max(0, (1.0 - sigma) * v))
+        upper = int(min(255, (1.0 + sigma) * v))
+        edged = cv2.Canny(image, lower, upper)
+        return edged
     
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret, th = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY_INV)
+        blur = cv2.GaussianBlur(gray,(5,5),1)
+        canny = label2number.auto_canny(blur)
+        kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+        dilate = cv2.dilate(canny, kernal, iterations=2)
+        th = cv2.erode(dilate, kernal, iterations=1)
         horImg = th.copy()
         verImg = th.copy()
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,2))

@@ -3,29 +3,42 @@ import numpy as np
 import cv2
 
 img = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\369.png')
+    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\2\2.jpg')
+
+def auto_canny(image, sigma=0.2):
+    # 計算單通道像素強度的中位數
+    v = np.median(image)
+    # 選擇合適的lower和upper值，然後應用它們
+    lower = int(max(0, (1.0 - sigma) * v))
+    upper = int(min(255, (1.0 + sigma) * v))
+    edged = cv2.Canny(image, lower, upper)
+    return edged
 
 
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-ret, th = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+blur = cv2.GaussianBlur(gray,(5,5),1)
+canny = auto_canny(blur)
+kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
+dilate = cv2.dilate(canny, kernal, iterations=2)
+th = cv2.erode(dilate, kernal, iterations=1)
 horImg = th.copy()
 verImg = th.copy()
-kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (50,3))
+kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,3))
 horImg = cv2.erode(horImg, kernal, iterations=1)
 horImg = cv2.dilate(horImg, kernal, iterations=2)
-kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,50))
+kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,60))
 verImg = cv2.erode(verImg, kernal, iterations=1)
 verImg = cv2.dilate(verImg, kernal, iterations=2)
 mask = horImg + verImg
 kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
-mask = cv2.dilate(mask, kernal_mask, iterations=3)
+mask = cv2.dilate(mask, kernal_mask, iterations=2)
 mask = 255 - mask
 no_border = cv2.bitwise_and(th, mask)
-canny = cv2.Canny(no_border, 0, 255)
+
 
 
 contours, hierarchy = cv2.findContours(
-            canny, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+            no_border, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 imgContour = img.copy()
 position = []
 for cnt in contours:
