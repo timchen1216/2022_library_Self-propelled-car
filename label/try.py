@@ -1,12 +1,12 @@
 import mysql.connector
 import shutil
 import os
-shutil.rmtree('C:/Users/timch\MyPython/2022_library_Self-propelled-car/1')
-shutil.rmtree('C:/Users/timch\MyPython/2022_library_Self-propelled-car/2') 
-shutil.rmtree('C:/Users/timch\MyPython/2022_library_Self-propelled-car/3')
-os.mkdir('C:/Users/timch\MyPython/2022_library_Self-propelled-car/1')
-os.mkdir('C:/Users/timch\MyPython/2022_library_Self-propelled-car/2')
-os.mkdir('C:/Users/timch\MyPython/2022_library_Self-propelled-car/3')
+shutil.rmtree('C:/Users/User/2022_library_Self-propelled-car/1')
+shutil.rmtree('C:/Users/User/2022_library_Self-propelled-car/2') 
+shutil.rmtree('C:/Users/User/2022_library_Self-propelled-car/3')
+os.mkdir('C:/Users/User/2022_library_Self-propelled-car/1')
+os.mkdir('C:/Users/User/2022_library_Self-propelled-car/2')
+os.mkdir('C:/Users/User/2022_library_Self-propelled-car/3')
 total = []
 connection = mysql.connector.connect(host='192.168.146.205',
                                     user='library',
@@ -38,7 +38,7 @@ def RetrieveBlob(ID,total):
         name = ID - total[0]
     else :
         name = ID - total[0] - total[1]
-    storefilepath = "./"+str(cab)+"/{0}.jpg".format(str(name)) #存到此路徑下名為1的資料夾內
+    storefilepath = "C:/Users/User/2022_library_Self-propelled-car/"+str(cab)+"/{0}.jpg".format(str(name)) #存到此路徑下名為1的資料夾內
     with open(storefilepath,"wb") as File:
             File.write(Myresult)
             File.close()

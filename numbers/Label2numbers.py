@@ -21,7 +21,7 @@ class label2number:
     def reimg(self,imgLable):
         self.imgContour = imgLable.copy()
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        ret, th = cv2.threshold(gray, 140, 255, cv2.THRESH_BINARY_INV)
+        ret, th = cv2.threshold(gray, 130, 255, cv2.THRESH_BINARY_INV)
         horImg = th.copy()
         verImg = th.copy()
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (60,2))
@@ -131,7 +131,7 @@ for i in range(1,4,1):
             initial_count += 1
     for j in range(1,initial_count+1,1):
         img = cv2.imread("C:/Users/User/2022_library_Self-propelled-car/"+str(i)+'/'+str(j)+'.jpg')
-        cv2.imshow('img'+str(i)+'-'+str(j),img)
+        # cv2.imshow('img'+str(i)+'-'+str(j),img)
         main = label2number(img)
         imgDial, imgThres, no_border, gray, th = main.reimg(img)
         imgContour = main.findContour()
@@ -140,7 +140,7 @@ for i in range(1,4,1):
         cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
         # cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
         # cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
-        cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
+        # cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
         # cv2.imshow('th'+str(i)+'-'+str(j), th)
 
@@ -152,20 +152,20 @@ for i in range(1,4,1):
         #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
-        client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        # client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 
-        db = client.book
+        # db = client.book
 
-        correct=db.correct
-        detect=db.detect
-        mis=db.mis
+        # correct=db.correct
+        # detect=db.detect
+        # mis=db.mis
 
-        num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+        # num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
 
-        detect.insert_one({
-            "書櫃":i,
-            "編號":num
-        })
+        # detect.insert_one({
+        #     "書櫃":i,
+        #     "編號":num
+        # })
     # print(initial_count)
 
 cv2.waitKey(0)
