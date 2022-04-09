@@ -1,4 +1,3 @@
-
 import pymongo
 
 client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
