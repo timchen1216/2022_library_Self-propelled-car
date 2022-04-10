@@ -157,12 +157,12 @@ for i in range(1,4,1):
         imgContour = main.findContour()
         crop = main.crop(img)
         predict,imgInput = main.prediction()
-        # cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
+        cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
         # cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
         # cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
         # cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
-        cv2.imshow('th'+str(i)+'-'+str(j), th)
+        # cv2.imshow('th'+str(i)+'-'+str(j), th)
 
 
         # for i,cro in enumerate(crop):
@@ -172,19 +172,26 @@ for i in range(1,4,1):
         #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
-        client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        # client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
 
-        db = client.book
+        # db = client.book
 
-        correct=db.correct
-        detect=db.detect
-        mis=db.mis
-        if len(predict) == 4:
-            num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
-            detect.insert_one({
-                "書櫃":i,
-                "編號":num
-            })
+        # correct=db.correct
+        # detect=db.detect
+        # mis=db.mis
+        # if len(predict) == 4:
+        #     num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+        #
+        #     result = detect.find_one({
+        #     "書櫃" : i,
+        #     "編號" : num
+        #     })
+        #
+        #     if result == None:
+        #       detect.insert_one({
+        #         "書櫃":i,
+        #         "編號":num
+        #       })
     # print(initial_count)
 
 cv2.waitKey(0)
