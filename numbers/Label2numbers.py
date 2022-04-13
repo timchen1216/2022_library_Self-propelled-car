@@ -172,13 +172,14 @@ for i in range(1,4,1):
         # for i,cro in enumerate(crop):
         #     cv2.imshow('inference'+str(i), cro)
 
-        for l,inp in enumerate(imgInput):
-            cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
+        # for l,inp in enumerate(imgInput):
+        #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
        
         if len(predict) == 4:
             num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+            num = float(num)
         
             result = detect.find_one({
                 "書櫃" : i,
