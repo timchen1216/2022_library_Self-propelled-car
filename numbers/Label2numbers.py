@@ -4,7 +4,11 @@ import os
 from keras.models import load_model
 import pymongo
 
-
+client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+db = client.book
+correct=db.correct
+detect=db.detect
+mis=db.mis
 
 
 class label2number:
@@ -40,7 +44,7 @@ class label2number:
         gray = cv2.cvtColor(sharp, cv2.COLOR_BGR2GRAY)
         th1 = label2number.auto_thresh(gray)
         kernal = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
-        dilate = cv2.dilate(th1, kernal, iterations=2)
+        dilate = cv2.dilate(th1, kernal, iterations=1)
         th = cv2.erode(dilate, kernal, iterations=1)
         horImg = th.copy()
         verImg = th.copy()
@@ -141,8 +145,8 @@ class label2number:
                     self.predict.append(i)
             
         return self.predict,imgInput
-
-
+    
+detect.drop()
 for i in range(1,4,1):
     initial_count = 0
     dir = 'C:/Users/User/2022_library_Self-propelled-car/'+str(i)
@@ -168,30 +172,26 @@ for i in range(1,4,1):
         # for i,cro in enumerate(crop):
         #     cv2.imshow('inference'+str(i), cro)
 
-        # for l,inp in enumerate(imgInput):
-        #     cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
+        for l,inp in enumerate(imgInput):
+            cv2.imshow('Input'+str(i)+'-'+str(j)+'-'+str(l), inp)
 
         print(predict)
-        # client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+       
+        if len(predict) == 4:
+            num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+        
+            result = detect.find_one({
+                "書櫃" : i,
+                "編號" : num
+            })
 
-        # db = client.book
-
-        # correct=db.correct
-        # detect=db.detect
-        # mis=db.mis
-        # if len(predict) == 4:
-        #     num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
-        #
-        #     result = detect.find_one({
-        #     "書櫃" : i,
-        #     "編號" : num
-        #     })
-        #
-        #     if result == None:
-        #       detect.insert_one({
-        #         "書櫃":i,
-        #         "編號":num
-        #       })
+            if result == None:
+              detect.insert_one({
+                "書櫃":i,
+                "編號":num
+              })
+            
+            
     # print(initial_count)
 
 cv2.waitKey(0)
