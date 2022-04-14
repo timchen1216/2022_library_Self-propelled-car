@@ -136,7 +136,7 @@ class label2number:
             prediction = self.model.predict(x_Test4D_normalize)
             #prediction = (model.predict(x_Test4D_normalize) > 0.5).astype("int32")
             # print(prediction.max())
-            print(prediction)
+            # print(prediction)
 
 
             pre_max = prediction.max()
