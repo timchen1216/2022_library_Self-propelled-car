@@ -65,7 +65,7 @@ for cnt in contours:
         x, y, w, h = cv2.boundingRect(vertices)                
         pos = [x, y, w, h]
         position.append(pos)
-        cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 255, 0), 4)
+        cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
 
 
