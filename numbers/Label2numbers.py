@@ -58,7 +58,7 @@ class label2number:
         kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
         mask = cv2.dilate(mask, kernal_mask, iterations=2)
         mask = 255 - mask
-        self.no_border = cv2.bitwise_and(th, mask)
+        self.no_border = cv2.bitwise_and(th1, mask)
         self.imgCanny = cv2.Canny(self.no_border, 0, 255)
         kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3,3))
         self.imgDial = cv2.dilate(self.no_border,kernel,iterations=1)
