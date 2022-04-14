@@ -48,7 +48,7 @@ mask = horImg + verImg
 kernal_mask = cv2.getStructuringElement(cv2.MORPH_RECT, (5,5))
 mask = cv2.dilate(mask, kernal_mask, iterations=2)
 mask = 255 - mask
-no_border = cv2.bitwise_and(th, mask)
+no_border = cv2.bitwise_and(th1, mask)
 
 
 
