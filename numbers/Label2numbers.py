@@ -136,11 +136,11 @@ class label2number:
             prediction = self.model.predict(x_Test4D_normalize)
             #prediction = (model.predict(x_Test4D_normalize) > 0.5).astype("int32")
             # print(prediction.max())
-            # print(prediction.shape)
+            print(prediction)
 
 
             pre_max = prediction.max()
-            for i in range(prediction.shape[1]):
+            for i in range(0,10,1):
                 if prediction[0,i] == pre_max:
                     self.predict.append(i)
             
@@ -161,10 +161,10 @@ for i in range(1,4,1):
         imgContour = main.findContour()
         crop = main.crop(img)
         predict,imgInput = main.prediction()
-        cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
+        # cv2.imshow('imgContour'+str(i)+'-'+str(j), imgContour)
         # cv2.imshow('imgDial'+str(i)+'-'+str(j), imgDial)
         # cv2.imshow('imgThres'+str(i)+'-'+str(j), imgThres)
-        # cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
+        cv2.imshow('no_border'+str(i)+'-'+str(j), no_border)
         # cv2.imshow('gray'+str(i)+'-'+str(j), gray)
         # cv2.imshow('th'+str(i)+'-'+str(j), th)
 
@@ -180,17 +180,20 @@ for i in range(1,4,1):
         if len(predict) == 4:
             num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
             num = float(num)
-        
-            result = detect.find_one({
-                "書櫃" : i,
+            contain = correct.find_one({
                 "編號" : num
             })
+            if contain != None:    
+                result = detect.find_one({
+                    "書櫃" : i,
+                    "編號" : num
+                })
 
-            if result == None:
-              detect.insert_one({
-                "書櫃":i,
-                "編號":num
-              })
+                if result == None:
+                    detect.insert_one({
+                        "書櫃":i,
+                        "編號":num
+                    })
             
             
     # print(initial_count)
