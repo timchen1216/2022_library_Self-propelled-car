@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 img = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\1\3.jpg')
+    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7041.png')
 
 def auto_canny(image, sigma=0.2):
     # 計算單通道像素強度的中位數
@@ -71,6 +71,7 @@ for cnt in contours:
 
 
 cv2.imshow('img', img)
+cv2.imshow('sharp', sharp)
 cv2.imshow('gray', gray)
 cv2.imshow('th', th)
 cv2.imshow('horimg', horImg)
