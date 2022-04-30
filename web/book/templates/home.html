@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>圖書系統</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='layout.css') }}"/>
+</head>
+<body>
+    <div class="welcome">圖書檢查系統</div>
+    <form action = "/detectdata">
+        <div class="main">
+            <button>檢查</button>
+        </div>
+    </form>
+</body>
+</html>
