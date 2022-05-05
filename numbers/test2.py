@@ -139,7 +139,7 @@ class label2number:
         return self.predict,imgInput
     
 
-img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\1\1.jpg')
+img = cv2.imread(r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
 # cv2.imshow('img'+str(i)+'-'+str(j),img)
 main = label2number(img)
 imgDial, imgThres, no_border, gray, th = main.reimg(img)
