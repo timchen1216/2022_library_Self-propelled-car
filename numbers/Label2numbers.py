@@ -2,13 +2,13 @@ import numpy as np
 import cv2
 import os
 from keras.models import load_model
-import pymongo
+import re, sqlite3
+from flask import Flask, render_template, url_for, request
+app = Flask(__name__)
 
-client = pymongo.MongoClient("mongodb+srv://che:che@mycluster.6t3lr.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
-db = client.book
-correct=db.correct
-detect=db.detect
-mis=db.mis
+con = sqlite3.connect('LibraryWeb.db')
+cur = con.cursor()
+
 
 
 class label2number:
@@ -146,7 +146,7 @@ class label2number:
             
         return self.predict,imgInput
     
-detect.drop()
+
 for i in range(1,4,1):
     initial_count = 0
     dir = 'C:/Users/User/2022_library_Self-propelled-car/'+str(i)
@@ -178,22 +178,11 @@ for i in range(1,4,1):
         print(predict)
        
         if len(predict) == 4:
-            num = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
-            num = float(num)
-            contain = correct.find_one({
-                "編號" : num
-            })
-            if contain != None:    
-                result = detect.find_one({
-                    "書櫃" : i,
-                    "編號" : num
-                })
-
-                if result == None:
-                    detect.insert_one({
-                        "書櫃":i,
-                        "編號":num
-                    })
+            number = str(predict[0])+str(predict[1])+str(predict[2])+"."+str(predict[3])
+            dp = str(i)
+            cur.execute(f"INSERT INTO detect (`number`, `dp`) VALUES ('{number}','{dp}')")
+            con.commit()
+            con.close()
             
             
     # print(initial_count)

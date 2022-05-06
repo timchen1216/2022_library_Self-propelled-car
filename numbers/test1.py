@@ -1,22 +1,13 @@
-from cv2 import THRESH_BINARY_INV
-import numpy as np
-import cv2
+import re, sqlite3
+from flask import Flask, render_template, url_for, request
+app = Flask(__name__)
 
-img = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
 
-def sharpen(img, sigma=100):    
-    # sigma = 5、15、25
-    blur_img = cv2.GaussianBlur(img, (0, 0), sigma)
-    usm = cv2.addWeighted(img, 1.5, blur_img, -0.5, 0)
+number = '270.3'
+dp = '2'
 
-    return usm
-
-blur_img = cv2.GaussianBlur(img, (0, 0), 100)
-sharp = sharpen(img)
-
-cv2.imshow('img', img)
-cv2.imshow('sharp', sharp)
-cv2.imshow('blur', blur_img)
-
-cv2.waitKey(0)
+con = sqlite3.connect('LibraryWeb.db')
+cur = con.cursor()
+cur.execute(f"INSERT INTO detect (`number`, `dp`) VALUES ('{number}','{dp}')")
+con.commit()
+con.close()
