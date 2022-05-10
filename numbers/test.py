@@ -3,7 +3,7 @@ import numpy as np
 import cv2
 
 img = cv2.imread(
-    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7041.png')
+    r'C:\Users\timch\MyPython\2022_library_Self-propelled-car\test_picture\7134.png')
 
 def auto_canny(image, sigma=0.2):
     # 計算單通道像素強度的中位數
@@ -67,10 +67,48 @@ for cnt in contours:
         position.append(pos)
         cv2.rectangle(imgContour, (x, y), (x+w, y+h), (0, 255, 0), 2)
 
+position.sort()
+
+crop_img = []
+for p in position:
+    x, y, w, h = p            
+    crop = no_border[y:y+h, x:x+w]
+    crop_img.append(crop)
+
+imgInput = []
+for cro in crop_img:
+
+    # resize to x*28 or 28*x
+    himg, wimg = cro.shape[:2]
+    if himg == wimg:
+        cro = cv2.resize(cro, (28, 28))
+    elif himg > wimg:
+        cro = cv2.resize(cro, (int(wimg/himg*28), 28))
+    elif himg < wimg:
+        cro = cv2.resize(cro, (28, int(himg/wimg*28)))
+    
+    # resize to rectangle
+    h, w = cro.shape
+    bg = np.zeros([28,28], dtype=np.uint8)
+    if h == w :
+        pass
+    elif h > w :
+        l = (h-w)//2
+        bg[0:28, l:l+w] = cro
+    elif w > h :
+        l = (w-h)//2
+        bg[l:l+h, 0:28] = cro
+
+    inp = cv2.resize(bg, (0, 0), fx=10, fy=10)
+    imgInput.append(inp)
+
+
 
 
 
 cv2.imshow('img', img)
+print(img.shape)
+cv2.imwrite('img.jpg', img)
 cv2.imshow('sharp', sharp)
 cv2.imshow('gray', gray)
 cv2.imshow('th', th)
@@ -78,7 +116,15 @@ cv2.imshow('horimg', horImg)
 cv2.imshow('verimg', verImg)
 cv2.imshow('mask', mask)
 cv2.imshow('no_border', no_border)
+cv2.imwrite('no_border.jpg', no_border)
 cv2.imshow('th1', th1)
+cv2.imwrite('th1.jpg', th1)
 cv2.imshow('imgContour', imgContour)
+cv2.imwrite('imgContour.jpg', imgContour)
+
+
+for l,inp in enumerate(imgInput):
+    cv2.imshow('Input'+'-'+str(l), inp)
+    cv2.imwrite('Input'+'-'+str(l)+'.jpg', inp)
 
 cv2.waitKey(0)
